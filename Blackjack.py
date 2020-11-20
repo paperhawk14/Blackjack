@@ -1,14 +1,13 @@
 import random
 import os
 
-
 def shuffle():
     cards = []
     suits = ["Diamonds", "Clubs", "Hearts", "Spades"]
     values = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"]
-    for i in suits:
-        for j in values:
-            cards.append((j, i))
+    for suit in suits:
+        for value in values:
+            cards.append((value, suit))
     deck = random.sample(cards, k=len(cards))
     return deck
 
@@ -21,15 +20,18 @@ def play_again():
         exit()
 
 
+def draw(person, deck):
+    person.append(deck[0])
+    deck = deck[1:]
+    return deck
+
+
 def deal(player, dealer, deck):
     for i in range(2):
         deck = draw(player, deck)
         deck = draw(dealer, deck)
-
-
-def draw(person, deck):
-    person.append(deck[0])
-    deck = deck[1:]
+    print("\nPlayer: ", player)
+    print("Dealer: ", dealer)
     return deck
 
 
@@ -42,6 +44,7 @@ def player_play(player, deck):
             print("Player: ", player)
         else:
             break
+    return deck
 
 
 def dealer_play(dealer, deck, player):
@@ -54,6 +57,7 @@ def dealer_play(dealer, deck, player):
 
 def counter(cards):
     count = 0
+    aces = 0
     for i in range(len(cards)):
         if cards[i][0] == "King":
             count += 10
@@ -62,18 +66,14 @@ def counter(cards):
         elif cards[i][0] == "Jack":
             count += 10
         elif cards[i][0] == "Ace":
-            if count >= 11:
-                count += 1
-            else:
-                count += 11
+            aces += 1
         else:
             count += int(cards[i][0])
-    if count > 21:                      # Really need a better way of doing this
-        a = []                          # this is bad for hard coding a -10
-        for i in range(len(cards)):
-            a.append(cards[i][0])
-        if "Ace" in a:
-            count += -10
+    if aces != 0:
+        if count + aces > 11:
+            count += aces
+        else:
+            count += aces+10
     return count
 
 
@@ -98,11 +98,9 @@ def game():
     deck = shuffle()
     player = []
     dealer = []
-    deal(player, dealer, deck)
-    print("\nPlayer: ", player)
-    print("Dealer: ", dealer)
-    player_play(player, deck)
-    dealer = dealer_play(dealer, deck, player)
+    deck = deal(player, dealer, deck)
+    deck = player_play(player, deck)
+    dealer_play(dealer, deck, player)
     who_wins(player, dealer)
     play_again()
 
